@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/tarathep/goWorkshops/findAge"
@@ -9,10 +8,14 @@ import (
 
 func TestFindDiffTH(t *testing.T) {
 	input := []string{"15", "06", "2539", "TH"}
-	fmt.Println(findAge.Find(input))
+	if (findAge.Find(input)) != "23 ปี  6 เดือน  9 วัน" {
+		t.Error()
+	}
 
 }
 func TestFindDiffEN(t *testing.T) {
 	input := []string{"15", "06", "1996", "EN"}
-	fmt.Println(findAge.Find(input))
+	if (findAge.Find(input)) != "23 year(s)  6 month(s)  9 day(s)" {
+		t.Error()
+	}
 }
