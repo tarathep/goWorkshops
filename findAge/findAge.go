@@ -27,10 +27,6 @@ func validation(input string, offset int) error {
 			return errors.New("error input month range format")
 		}
 	case 2:
-		if len(input) != 4 {
-			return errors.New("error input year format (yyyy)")
-		}
-
 		iYear, err := strconv.Atoi(input)
 		if err != nil {
 			return errors.New("error input convert year format")
@@ -84,13 +80,18 @@ func Find(inputs []string) string {
 		return ""
 	}
 
-	if language == "TH" {
-		y, _ := strconv.Atoi(year)
-		year = fmt.Sprint((y - 543))
-	}
+	/*
+		if language == "TH" {
+			y, _ := strconv.Atoi(year)
+			year = fmt.Sprint((y - 543))
+		}
+	*/
 
 	start, _ := time.Parse("02-01-2006", day+"-"+month+"-"+year)
 	diffYear, diffMonth, diffDay, _, _, _ := diff(start, time.Now())
+	if diffYear < 0 {
+		return "error input year"
+	}
 	if language == "TH" {
 		return fmt.Sprint(diffYear) + " ปี  " + fmt.Sprint(diffMonth) + " เดือน  " + fmt.Sprint(diffDay) + " วัน"
 	} else {
@@ -99,12 +100,16 @@ func Find(inputs []string) string {
 }
 
 func diff(a, b time.Time) (year, month, day, hour, min, sec int) {
+
+	//location zone time
 	if a.Location() != b.Location() {
 		b = b.In(a.Location())
 	}
-	if a.After(b) {
-		a, b = b, a
-	}
+	/*
+		if a.After(b) {
+			a, b = b, a
+		}
+	*/
 	y1, M1, d1 := a.Date()
 	y2, M2, d2 := b.Date()
 
