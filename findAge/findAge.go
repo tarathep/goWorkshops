@@ -27,6 +27,10 @@ func validation(input string, offset int) error {
 			return errors.New("error input month range format")
 		}
 	case 2:
+		//if len(input) != 4 {
+		//	return errors.New("error input year format (yyyy)")
+		//}
+
 		iYear, err := strconv.Atoi(input)
 		if err != nil {
 			return errors.New("error input convert year format")
@@ -35,7 +39,7 @@ func validation(input string, offset int) error {
 			return errors.New("error input year format")
 		}
 	case 3:
-		if !(input == "EN" || input == "TH") {
+		if !(input == "EN" || input == "TH" || input == "") {
 			return errors.New("error input option language format")
 		}
 	}
@@ -43,12 +47,18 @@ func validation(input string, offset int) error {
 }
 
 func Find(inputs []string) string {
-	if !(len(inputs) == 4 || len(inputs) == 3) {
+	if !(len(inputs) >= 3) {
 		fmt.Println("error input params")
 		return ""
 	}
 	day := strings.Trim(inputs[0], "\n")
+	if len(day) < 2 {
+		day = "0" + day
+	}
 	month := strings.Trim(inputs[1], "\n")
+	if len(month) < 2 {
+		month = "0" + month
+	}
 	year := strings.Trim(inputs[2], "\n")
 	var language string = "EN"
 
@@ -79,23 +89,34 @@ func Find(inputs []string) string {
 	if errTmp != nil {
 		return ""
 	}
+	y, _ := strconv.Atoi(year)
+	m, _ := strconv.Atoi(month)
+	d, _ := strconv.Atoi(day)
 
-	/*
-		if language == "TH" {
-			y, _ := strconv.Atoi(year)
-			year = fmt.Sprint((y - 543))
-		}
-	*/
+	if daysIn(m, y) < d && d > 0 {
+		fmt.Println("Error date is over range")
+		return ""
+	}
 
 	start, _ := time.Parse("02-01-2006", day+"-"+month+"-"+year)
 	diffYear, diffMonth, diffDay, _, _, _ := diff(start, time.Now())
 	if diffYear < 0 {
-		return "error input year"
+		return "error input is over range"
 	}
 	if language == "TH" {
 		return fmt.Sprint(diffYear) + " ปี  " + fmt.Sprint(diffMonth) + " เดือน  " + fmt.Sprint(diffDay) + " วัน"
 	} else {
-		return fmt.Sprint(diffYear) + " year(s)  " + fmt.Sprint(diffMonth) + " month(s)  " + fmt.Sprint(diffDay) + " day(s)"
+		formatY, formatM, formatD := " year  ", " month  ", " day  "
+		if diffYear > 1 {
+			formatY = " years  "
+		}
+		if diffMonth > 1 {
+			formatM = " months  "
+		}
+		if diffDay > 1 {
+			formatD = " days  "
+		}
+		return fmt.Sprint(diffYear) + formatY + fmt.Sprint(diffMonth) + formatM + fmt.Sprint(diffDay) + formatD
 	}
 }
 
@@ -148,4 +169,10 @@ func diff(a, b time.Time) (year, month, day, hour, min, sec int) {
 	}
 
 	return
+}
+
+func daysIn(month int, year int) int {
+	m := time.Month(month)
+	// This is equivalent to time.daysIn(m, year).
+	return time.Date(year, m+1, 0, 0, 0, 0, 0, time.UTC).Day()
 }
